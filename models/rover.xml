@@ -1,0 +1,86 @@
+
+<mujoco model="rover">
+  <compiler angle="degree" inertiafromgeom="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81"/>
+  
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .1 .1" rgb2=".2 .2 .2"/>
+    <material name="grid" texture="grid" texuniform="true" texscale="1 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- Ground plane -->
+    <geom name="ground" type="plane" size="50 50 1" material="grid" friction="0.5"/>
+    
+    <!-- Rover body -->
+    <body name="chassis" pos="0 0 0.15">
+      <!-- Chassis inertial and geometry -->
+      <inertial pos="0 0 0" mass="2" diaginv="0.05 0.05 0.03"/>
+      <geom name="chassis_geom" type="box" size="0.2 0.15 0.1" friction="0.3"/>
+      
+      <!-- Left wheel -->
+      <body name="left_wheel" pos="0 0.15 0">
+        <inertial pos="0 0 0" mass="0.5" diaginv="0.002 0.002 0.002"/>
+        <joint name="left_motor" type="hinge" axis="0 1 0" range="-10 10"/>
+        <geom name="left_wheel_geom" type="cylinder" size="0.05 0.08" friction="0.8"/>
+      </body>
+      
+      <!-- Right wheel -->
+      <body name="right_wheel" pos="0 -0.15 0">
+        <inertial pos="0 0 0" mass="0.5" diaginv="0.002 0.002 0.002"/>
+        <joint name="right_motor" type="hinge" axis="0 1 0" range="-10 10"/>
+        <geom name="right_wheel_geom" type="cylinder" size="0.05 0.08" friction="0.8"/>
+      </body>
+      
+      <!-- Caster wheel (for stability) -->
+      <body name="caster" pos="-0.15 0 -0.08">
+        <inertial pos="0 0 0" mass="0.1" diaginv="0.0001 0.0001 0.0001"/>
+        <geom name="caster_geom" type="sphere" size="0.02" friction="0.1"/>
+      </body>
+    </body>
+    
+    <!-- Obstacles for training -->
+    <!-- Obstacle 1 -->
+    <body name="obstacle1" pos="2 0 0.2">
+      <geom name="obs1" type="box" size="0.3 0.3 0.2" friction="0.5"/>
+    </body>
+    
+    <!-- Obstacle 2 -->
+    <body name="obstacle2" pos="4 1 0.2">
+      <geom name="obs2" type="box" size="0.3 0.3 0.2" friction="0.5"/>
+    </body>
+    
+    <!-- Obstacle 3 -->
+    <body name="obstacle3" pos="6 -0.5 0.2">
+      <geom name="obs3" type="box" size="0.3 0.3 0.2" friction="0.5"/>
+    </body>
+    
+    <!-- Goal marker (invisible, just for reference) -->
+    <body name="goal" pos="8 0 0.1">
+      <geom name="goal_geom" type="sphere" size="0.15" friction="0" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+
+  <!-- Define motors/actuators -->
+  <actuator>
+    <motor name="left_motor_control" joint="left_motor" ctrlrange="-1 1" gear="10"/>
+    <motor name="right_motor_control" joint="right_motor" ctrlrange="-1 1" gear="10"/>
+  </actuator>
+
+  <!-- Sensors for observation -->
+  <sensor>
+    <!-- Position sensors -->
+    <framepos name="chassis_pos" objtype="body" objname="chassis"/>
+    <framequat name="chassis_quat" objtype="body" objname="chassis"/>
+    
+    <!-- Velocity sensors -->
+    <framelinvel name="chassis_linvel" objtype="body" objname="chassis"/>
+    <frameangvel name="chassis_angvel" objtype="body" objname="chassis"/>
+    
+    <!-- Joint sensors -->
+    <jointpos name="left_joint_pos" joint="left_motor"/>
+    <jointpos name="right_joint_pos" joint="right_motor"/>
+    <jointvel name="left_joint_vel" joint="left_motor"/>
+    <jointvel name="right_joint_vel" joint="right_motor"/>
+  </sensor>
+</mujoco>

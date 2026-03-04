@@ -1,6 +1,6 @@
 import gymnasium as gym 
 
-env = gym.make('Humanoid-v4')
+env = gym.make('Humanoid-v5')
 observation, info = env.reset()
 
 for step in range(100):
