@@ -1,4 +1,22 @@
 import gymnasium as gym
+import numpy as np
+import mujoco 
+
+class RoverEnv(gym.Env):
+    def __init__(self):
+        super().__init__()
+
+        self.model = mujoco.MjModel.from_xml_path("models/rover.xml")
+
+        self.data = mujoco.MjData(self.model)
+        
+        
+    
+
+
+
+
+
 
 env = gym.make("CartPole-v1", render_mode="human")
 
