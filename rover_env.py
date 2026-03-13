@@ -18,6 +18,9 @@ class RoverEnv(gym.Env):
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)
 
         self.observation_space = spaces.Box(low= -np.inf, high=np.inf, shape=(20,), dtype=np.float32)
+
+        self.data.body('chassis').xpos = [0, 0, 0.15]
+        
         
 
 
