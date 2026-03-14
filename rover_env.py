@@ -19,7 +19,43 @@ class RoverEnv(gym.Env):
 
         self.observation_space = spaces.Box(low= -np.inf, high=np.inf, shape=(20,), dtype=np.float32)
 
-        self.data.body('chassis').xpos = [0, 0, 0.15]
+    def reset(self):
+        """Reset the environment to a new state"""
+        mujoco.mj_resetData(self.model, self.data)
+        self.data.body('chassis').xpos[:] = [0, 0, 0.15]
+        self.step_count = 0
+        obs = self._get_observation()
+        info = {}
+        return obs, info 
+    
+    def step(self, action):
+        """ Execute one timestep within the environment"""
+        self.data.ctrl[0] = action[0]
+        self.data.ctrl[1] = action[1]
+
+        mujoco.mj_step(self.model, self.data)
+        self.step_count += 1
+        obs = self._get_observation()
+        reward = self._get_reward()
+        self.step_count += 1
+
+        terminated = False
+        if self.data.body('chassis').xpos[2] < 0.05:
+            terminated = True
+            reward -= 5 
+
+        distance_to_goal = np.linalg.norm(sef.goal_pos - self.data.body('chassis').xpos[:2])
+        if distance_to_goal < 0.5:
+            terminated = True 
+
+        if np.abs(self.data.body('chassis').xpos[0]) > 15 or np.abs(self.data.body('chassis').xpos[1]) > 10:
+            terminated = True
+
+        truncated = self.step_count >= self.max_steps
+
+        info = {}
+
+        return obs, reward, terminated, truncated, info
         
         
 
