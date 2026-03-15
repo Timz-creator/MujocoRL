@@ -44,7 +44,7 @@ class RoverEnv(gym.Env):
             terminated = True
             reward -= 5 
 
-        distance_to_goal = np.linalg.norm(sef.goal_pos - self.data.body('chassis').xpos[:2])
+        distance_to_goal = np.linalg.norm(self.goal_pos - self.data.body('chassis').xpos[:2])
         if distance_to_goal < 0.5:
             terminated = True 
 
@@ -57,6 +57,37 @@ class RoverEnv(gym.Env):
 
         return obs, reward, terminated, truncated, info
         
+    def _get_observation(self):
+        """ Extract observation from Mujoco data """
+        chassis_pos = self.data.body('chassis').xpos.copy()
+
+        chassis_linvel = self.data.body('chassis').cvel[:3].copy()
+
+        chassis_quat = self.data.body('chassis').xquat.copy()
+
+        chassis_angvel = self.data.body('chassis').cvel[3:].copy()
+
+        left_joint_pos = self.data.joint('left_motor').qpos[0]
+        right_joint_pos = self.data.joint('right_motor').qpos[0]
+        left_joint_vel = self.data.joint('left_motor').qvel[0]
+        right_joint_vel = self.data.joint('right_motor').qvel[0]
+
+        goal_rel = self.goal_pos - chassis_pos[:2]
+        goal_distance = np.linalg.norm(goal_rel)
+
+        obs = np.concatenate([
+            chassis_pos,
+            chassis_linvel,
+            chassis_quat,
+            chassis_angvel,
+            [left_joint_pos, right_joint_pos],
+            [left_joint_vel, right_joint_vel],
+            goal_rel,
+            [goal_distance]
+        ]).astype(np.float32)
+
+        return obs 
+
         
 
 
